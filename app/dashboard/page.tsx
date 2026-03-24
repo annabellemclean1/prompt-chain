@@ -214,9 +214,96 @@ export default function DashboardPage() {
       <div style={{ display: 'grid', gridTemplateColumns: '280px minmax(0, 1fr)', gap: '32px' }}>
 
         {/* SIDEBAR */}
-        <div style={glassPanel}>
-          {/* unchanged */}
-        </div>
+       <div style={glassPanel}>
+         <div
+           style={{
+             padding: '20px',
+             borderBottom: `1px solid ${theme.border}`,
+             display: 'flex',
+             justifyContent: 'space-between',
+             alignItems: 'center'
+           }}
+         >
+           <span
+             style={{
+               fontSize: '11px',
+               fontWeight: '900',
+               letterSpacing: '0.1em',
+               textTransform: 'uppercase',
+               color: theme.textMuted
+             }}
+           >
+             Configurations
+           </span>
+
+           <button
+             onClick={openCreateFlavor}
+             style={{
+               background: theme.accent,
+               color: '#000',
+               border: 'none',
+               borderRadius: '4px',
+               width: '24px',
+               height: '24px',
+               fontWeight: 'bold',
+               cursor: 'pointer'
+             }}
+           >
+             +
+           </button>
+         </div>
+
+         <div style={{ padding: '10px', maxHeight: '70vh', overflowY: 'auto' }}>
+           {loading ? (
+             <div style={{ padding: '20px', textAlign: 'center', color: theme.textMuted, fontSize: '12px' }}>
+               Loading...
+             </div>
+           ) : flavors.map(f => (
+             <div
+               key={f.id}
+               onClick={() => setSelectedFlavor(f)}
+               style={{
+                 padding: '14px 16px',
+                 cursor: 'pointer',
+                 borderRadius: '8px',
+                 marginBottom: '4px',
+                 background: selectedFlavor?.id === f.id
+                   ? 'rgba(0, 255, 136, 0.08)'
+                   : 'transparent',
+                 borderLeft: selectedFlavor?.id === f.id
+                   ? `3px solid ${theme.accent}`
+                   : '3px solid transparent',
+                 transition: 'all 0.2s'
+               }}
+             >
+               <div
+                 style={{
+                   fontSize: '14px',
+                   fontWeight: '700',
+                   color: selectedFlavor?.id === f.id
+                     ? theme.accent
+                     : theme.textMain
+                 }}
+               >
+                 {f.slug}
+               </div>
+
+               <div
+                 style={{
+                   fontSize: '11px',
+                   color: theme.textMuted,
+                   marginTop: '4px',
+                   whiteSpace: 'nowrap',
+                   overflow: 'hidden',
+                   textOverflow: 'ellipsis'
+                 }}
+               >
+                 {f.description || 'No description'}
+               </div>
+             </div>
+           ))}
+         </div>
+       </div>
 
         {/* MAIN */}
         {selectedFlavor ? (
