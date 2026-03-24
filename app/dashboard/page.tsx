@@ -112,11 +112,11 @@ export default function DashboardPage() {
       const res = await fetch('https://api.almostcrackd.ai/pipeline/generate-captions', { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ imageId: selectedImageId, humorFlavorId: selectedFlavor.id }) })
       if (!res.ok) throw new Error(`API error: ${await res.text()}`)
       const data = await res.json(); setTestResults(Array.isArray(data) ? data : [data])
+      loadFlavorCaptions(selectedFlavor.id) // Refresh history after test
     } catch (e: any) { setTestError(e.message) }
     setTestLoading(false)
   }
 
-  // Styles
   const glassPanel = { background: '#111', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px' }
 
   return (
@@ -170,7 +170,7 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Steps Container */}
+            {/* Workflow Sequence */}
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
                 <span style={{ fontSize: '11px', fontWeight: '900', color: '#444', textTransform: 'uppercase' }}>Workflow Sequence</span>
@@ -209,7 +209,7 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Sandbox */}
+            {/* Sandbox / Testing */}
             <div style={{ ...glassPanel, padding: '32px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px' }}>
                 <h3 style={{ fontSize: '18px', fontWeight: '900' }}>Sandbox Execution</h3>
@@ -217,16 +217,34 @@ export default function DashboardPage() {
                   {testLoading ? 'Generating...' : 'Run Pipeline'}
                 </button>
               </div>
-              <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', marginBottom: '24px' }}>
-                {images.slice(0, 10).map(img => (
+              <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', marginBottom: '24px', paddingBottom: '8px' }}>
+                {images.slice(0, 15).map(img => (
                   <img key={img.id} src={img.url} onClick={() => setSelectedImageId(img.id)} style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px', cursor: 'pointer', border: selectedImageId === img.id ? '2px solid #6366f1' : '2px solid transparent', opacity: selectedImageId === img.id ? 1 : 0.4 }} />
                 ))}
               </div>
               <div style={{ background: '#070707', borderRadius: '12px', padding: '24px', border: '1px solid #1a1a1a' }}>
                 {testResults.length > 0 ? testResults.map((r, i) => (
-                  <div key={i} style={{ color: '#fff', fontSize: '14px', marginBottom: '8px', paddingLeft: '12px', borderLeft: '2px solid #6366f1' }}>{r.content ?? r}</div>
-                )) : <div style={{ color: '#333', fontSize: '11px', textAlign: 'center' }}>NO LOGS YET</div>}
+                  <div key={i} style={{ color: '#fff', fontSize: '14px', marginBottom: '8px', paddingLeft: '12px', borderLeft: '2px solid #6366f1', lineHeight: '1.5' }}>
+                    {typeof r === 'string' ? r : (r.content ?? JSON.stringify(r))}
+                  </div>
+                )) : <div style={{ color: '#333', fontSize: '11px', textAlign: 'center', fontWeight: 'bold' }}>NO REAL-TIME LOGS</div>}
               </div>
+            </div>
+
+            {/* Production History (THE FIX IS HERE) */}
+            <div style={glassPanel}>
+               <div style={{ padding: '16px 24px', borderBottom: '1px solid rgba(255,255,255,0.08)', fontSize: '11px', fontWeight: '900', color: '#444', textTransform: 'uppercase', letterSpacing: '0.1em' }}>History: Captions Produced by This Flavor</div>
+               <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                 {captionsLoading ? (
+                    <div style={{ padding: '24px', textAlign: 'center', color: '#333', fontSize: '11px' }}>SYNCING HISTORY...</div>
+                 ) : flavorCaptions.length === 0 ? (
+                    <div style={{ padding: '24px', textAlign: 'center', color: '#333', fontSize: '11px' }}>NO PERMANENT RECORDS FOUND</div>
+                 ) : flavorCaptions.map(c => (
+                   <div key={c.id} style={{ padding: '16px 24px', borderBottom: '1px solid rgba(255,255,255,0.02)', fontSize: '13px', color: '#ccc', lineHeight: '1.5' }}>
+                     {c.content}
+                   </div>
+                 ))}
+               </div>
             </div>
 
           </div>
@@ -237,13 +255,13 @@ export default function DashboardPage() {
         )}
       </div>
 
-      {/* MODALS */}
+      {/* MODALS (Simplified for brevity but identical logic) */}
       {(flavorModal === 'create' || flavorModal === 'edit') && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
           <div style={{ ...glassPanel, width: '440px', padding: '40px', background: '#0a0a0a' }}>
              <h3 style={{ fontSize: '18px', fontWeight: '900', marginBottom: '24px' }}>Flavor Configuration</h3>
-             <input placeholder="Slug" style={{ width: '100%', background: '#111', border: '1px solid #333', borderRadius: '8px', padding: '12px', color: '#fff', marginBottom: '16px' }} value={flavorForm.slug} onChange={e => setFlavorForm(v => ({...v, slug: e.target.value}))} />
-             <textarea placeholder="Description" style={{ width: '100%', background: '#111', border: '1px solid #333', borderRadius: '8px', padding: '12px', color: '#fff', height: '100px' }} value={flavorForm.description} onChange={e => setFlavorForm(v => ({...v, description: e.target.value}))} />
+             <input placeholder="Slug" style={{ width: '100%', background: '#111', border: '1px solid #333', borderRadius: '8px', padding: '12px', color: '#fff', marginBottom: '16px', outline: 'none' }} value={flavorForm.slug} onChange={e => setFlavorForm(v => ({...v, slug: e.target.value}))} />
+             <textarea placeholder="Description" style={{ width: '100%', background: '#111', border: '1px solid #333', borderRadius: '8px', padding: '12px', color: '#fff', height: '100px', outline: 'none' }} value={flavorForm.description} onChange={e => setFlavorForm(v => ({...v, description: e.target.value}))} />
              <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
                 <button onClick={() => setFlavorModal(null)} style={{ flex: 1, background: 'none', border: '1px solid #333', color: '#888', padding: '12px', borderRadius: '8px', cursor: 'pointer' }}>Cancel</button>
                 <button onClick={saveFlavor} style={{ flex: 1, background: '#6366f1', color: '#fff', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Save</button>
@@ -257,13 +275,13 @@ export default function DashboardPage() {
           <div style={{ ...glassPanel, width: '580px', padding: '40px', background: '#0a0a0a', maxHeight: '90vh', overflowY: 'auto' }}>
              <h3 style={{ fontSize: '18px', fontWeight: '900', marginBottom: '24px' }}>Step Logic</h3>
              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-               <input placeholder="Description" style={{ width: '100%', background: '#111', border: '1px solid #333', borderRadius: '8px', padding: '12px', color: '#fff' }} value={stepForm.description} onChange={e => setStepForm(v => ({...v, description: e.target.value}))} />
+               <input placeholder="Description" style={{ width: '100%', background: '#111', border: '1px solid #333', borderRadius: '8px', padding: '12px', color: '#fff', outline: 'none' }} value={stepForm.description} onChange={e => setStepForm(v => ({...v, description: e.target.value}))} />
                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                  <input placeholder="Temperature" style={{ width: '100%', background: '#111', border: '1px solid #333', borderRadius: '8px', padding: '12px', color: '#fff' }} value={stepForm.llm_temperature} onChange={e => setStepForm(v => ({...v, llm_temperature: e.target.value}))} />
-                  <input placeholder="Model ID" style={{ width: '100%', background: '#111', border: '1px solid #333', borderRadius: '8px', padding: '12px', color: '#fff' }} value={stepForm.llm_model_id} onChange={e => setStepForm(v => ({...v, llm_model_id: e.target.value}))} />
+                  <input placeholder="Temperature" style={{ width: '100%', background: '#111', border: '1px solid #333', borderRadius: '8px', padding: '12px', color: '#fff', outline: 'none' }} value={stepForm.llm_temperature} onChange={e => setStepForm(v => ({...v, llm_temperature: e.target.value}))} />
+                  <input placeholder="Model ID" style={{ width: '100%', background: '#111', border: '1px solid #333', borderRadius: '8px', padding: '12px', color: '#fff', outline: 'none' }} value={stepForm.llm_model_id} onChange={e => setStepForm(v => ({...v, llm_model_id: e.target.value}))} />
                </div>
-               <textarea placeholder="System Prompt" style={{ width: '100%', background: '#070707', border: '1px solid #333', borderRadius: '8px', padding: '12px', color: '#fff', height: '120px', fontFamily: 'var(--mono)' }} value={stepForm.llm_system_prompt} onChange={e => setStepForm(v => ({...v, llm_system_prompt: e.target.value}))} />
-               <textarea placeholder="User Prompt" style={{ width: '100%', background: '#070707', border: '1px solid #333', borderRadius: '8px', padding: '12px', color: '#fff', height: '120px', fontFamily: 'var(--mono)' }} value={stepForm.llm_user_prompt} onChange={e => setStepForm(v => ({...v, llm_user_prompt: e.target.value}))} />
+               <textarea placeholder="System Prompt" style={{ width: '100%', background: '#070707', border: '1px solid #333', borderRadius: '8px', padding: '12px', color: '#fff', height: '120px', fontFamily: 'var(--mono)', outline: 'none' }} value={stepForm.llm_system_prompt} onChange={e => setStepForm(v => ({...v, llm_system_prompt: e.target.value}))} />
+               <textarea placeholder="User Prompt" style={{ width: '100%', background: '#070707', border: '1px solid #333', borderRadius: '8px', padding: '12px', color: '#fff', height: '120px', fontFamily: 'var(--mono)', outline: 'none' }} value={stepForm.llm_user_prompt} onChange={e => setStepForm(v => ({...v, llm_user_prompt: e.target.value}))} />
              </div>
              <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
                 <button onClick={() => setStepModal(null)} style={{ flex: 1, background: 'none', border: '1px solid #333', color: '#888', padding: '12px', borderRadius: '8px', cursor: 'pointer' }}>Cancel</button>
