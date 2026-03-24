@@ -137,7 +137,7 @@ export default function DashboardPage() {
   const glassPanel = { background: theme.panel, border: `1px solid ${theme.border}`, borderRadius: '12px' }
 
   return (
-    <div style={{ padding: '40px 60px', minHeight: '100vh', background: theme.bg, color: theme.textMain, fontFamily: 'Inter, system-ui, sans-serif' }}>
+    <div style={{ padding: '24px 24px', minHeight: '100vh', background: theme.bg, color: theme.textMain, fontFamily: 'Inter, system-ui, sans-serif' }}>
 
       {/* HEADER */}
       <div style={{ marginBottom: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
@@ -150,7 +150,7 @@ export default function DashboardPage() {
         {error && <div style={{ color: '#ef4444', fontSize: '12px', fontWeight: 'bold', background: 'rgba(239, 68, 68, 0.1)', padding: '8px 16px', borderRadius: '6px', border: '1px solid rgba(239, 68, 68, 0.2)' }}>{error}</div>}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: '32px', alignItems: 'start' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: '32px', alignItems: 'start' }}>
 
         {/* SIDEBAR: FLAVORS */}
         <div style={glassPanel}>
@@ -215,7 +215,7 @@ export default function DashboardPage() {
                         <button style={{ background: 'rgba(239, 68, 68, 0.1)', border: 'none', color: '#ef4444', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '11px', fontWeight: '900' }} onClick={() => openDeleteStep(s)}>×</button>
                       </div>
                     </div>
-                    <div style={{ padding: '24px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                    <div style={{ padding: '24px', display: 'grid', gridTemplateColumns: '1fr', gap: '24px' }}>
                       <div>
                         <div style={{ fontSize: '9px', color: theme.textMuted, fontWeight: '900', textTransform: 'uppercase', marginBottom: '8px' }}>System Logic</div>
                         <div style={{ background: '#0f172a', padding: '16px', borderRadius: '8px', fontSize: '12px', color: '#cbd5e1', border: '1px solid rgba(255,255,255,0.05)', fontFamily: 'monospace', minHeight: '60px', lineHeight: '1.6' }}>
@@ -307,7 +307,7 @@ export default function DashboardPage() {
              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                <input placeholder="Step Description (e.g. Image Analysis)" style={{ width: '100%', background: theme.bg, border: `1px solid ${theme.border}`, borderRadius: '8px', padding: '14px', color: '#fff', outline: 'none' }} value={stepForm.description} onChange={e => setStepForm(v => ({...v, description: e.target.value}))} />
 
-               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+               <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
                   <div>
                     <label style={{ fontSize: '10px', color: theme.textMuted, fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>TEMPERATURE</label>
                     <input style={{ width: '100%', background: theme.bg, border: `1px solid ${theme.border}`, borderRadius: '8px', padding: '12px', color: '#fff' }} value={stepForm.llm_temperature} onChange={e => setStepForm(v => ({...v, llm_temperature: e.target.value}))} />
